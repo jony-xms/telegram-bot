@@ -1929,7 +1929,7 @@ async def adm_do_unban(msg: Message, state: FSMContext):
 # ───────────────────────────────────────────────────────────
 async def handle(request):
     from aiohttp import web
-    return web.Response(text="Bot is Live and Running!")
+    return web.Response(text="OK")
 
 async def start_web_server():
     from aiohttp import web
