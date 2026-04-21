@@ -1924,12 +1924,39 @@ async def adm_do_unban(msg: Message, state: FSMContext):
     except ValueError:
         await msg.answer(tr(uid, "id_err"))
     await state.clear()
+# ───────────────────────────────────────────────────────────
+#  RENDER UCHUN SOXTA WEB SERVER
+# ───────────────────────────────────────────────────────────
+async def handle(request):
+    from aiohttp import web
+    return web.Response(text="Bot is Live and Running!")
 
+async def start_web_server():
+    from aiohttp import web
+    import os
+    app = web.Application()
+    app.router.add_get("/", handle)
+    runner = web.AppRunner(app)
+    await runner.setup()
+    
+    # Render beradigan portni oladi, bo'lmasa 10000
+    port = int(os.environ.get("PORT", 10000))
+    site = web.TCPSite(runner, "0.0.0.0", port)
+    await site.start()
+    # Log ob'ekti sizda 'log' deb nomlangan bo'lsa:
+    try:
+        log.info(f"🌐 Web server {port}-portda ishga tushdi")
+    except:
+        print(f"🌐 Web server {port}-portda ishga tushdi")
 # ───────────────────────────────────────────────────────────
 #  MAIN
 # ───────────────────────────────────────────────────────────
 async def main():
     db_init()
+    
+    # MUHIM: Render o'chirib yubormasligi uchun serverni shu yerda uyg'otamiz
+    await start_web_server() 
+
     bot = Bot(
         token=BOT_TOKEN,
         default=DefaultBotProperties(parse_mode=ParseMode.HTML)
@@ -1946,7 +1973,11 @@ async def main():
     log.info("📖  Guide URL:            %s", GUIDE_URL)
     log.info("👮  Admin ID lar:         %s", ADMIN_IDS or "—")
 
+    # Botni ishga tushirish
     await dp.start_polling(bot, allowed_updates=dp.resolve_used_update_types())
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    try:
+        asyncio.run(main())
+    except (KeyboardInterrupt, SystemExit):
+        print("Bot to'xtatildi")
